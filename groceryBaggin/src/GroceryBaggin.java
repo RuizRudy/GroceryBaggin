@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -60,7 +61,10 @@ public class GroceryBaggin {
 		String itemSymbol = itemArr[2];
 		
 		// Loop through all constraint items and create constraint bit
-		
+		BitSet constraintBits = new BitSet(totalItems);
+		for(int i = 3; i < itemArr.length; i++) {
+			
+		}
 		
 		// Create new Item
 		Item newItem = Item(itemArr[0], itemArr[1]);

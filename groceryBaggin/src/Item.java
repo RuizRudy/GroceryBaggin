@@ -3,7 +3,7 @@ import java.util.BitSet;
 public class Item {
 	private int itemNum;
 	private int size;
-	private BitSet constraints;
+	private BitSet constraints; 
 	
 	public Item(int itemNum, int size, BitSet constraints) {
 		
