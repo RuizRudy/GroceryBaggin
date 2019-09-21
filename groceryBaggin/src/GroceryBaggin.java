@@ -2,8 +2,9 @@
 public class GroceryBaggin {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		//test
+		
+		// Iterate through item list and create items with weight
+		
 	}
 
 }
