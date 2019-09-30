@@ -4,6 +4,7 @@ public class WorldState {
 	
 	public List<Item> itemList;
 	public List<Bag> wState;
+
 	public WorldState(List<Bag> bags,List<Item> itemList) {
 		wState = bags;
 		this.itemList = itemList;
@@ -29,6 +30,22 @@ public class WorldState {
 		}
 		
 		return null;
+		
+	}
+	
+	public String toString() {
+		String toS = "";
+		for(Bag b : wState) {
+			for(int i=0;i<b.bagItems.size();i++) {
+				if(b.bagItems.get(i))
+				 toS+="item"+i+" ";
+			}
+			toS+="\n";
+			
+		}
+		
+		
+		return toS;
 		
 	}
 
