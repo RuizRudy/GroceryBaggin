@@ -30,29 +30,20 @@ public class Bag {
 	public boolean itemCheck(Item newItem) {
 		
 		if((spaceRemaining >= newItem.getSize()) && constraints.get(newItem.getNum()) && !newItem.getConstraints().intersects(bagItems) ) {
-			putItem(newItem);
+			spaceRemaining -= newItem.getSize();
+			bagItems.set(newItem.getNum());		
+			constraints.or(newItem.getConstraints());
 		return true;	
 		
 		}else return false;		
 	}
-	/**
-	 * puts item into bag and updates parameters of bag
-	 * 
-	 * @param newItem
-	 */
-	public void putItem(Item newItem) {
-		
-		spaceRemaining -= newItem.getSize();
-		bagItems.set(newItem.getNum());		
-		constraints.or(newItem.getConstraints());
-		
-	}
+
 	/**
 	 * Checks if the bag has space left
 	 * @return
 	 */
 	public boolean isFull() {		
-		return (spaceRemaining>0);
+		return (spaceRemaining>=0);
 	}
 
 }

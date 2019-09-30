@@ -25,8 +25,12 @@ public class GroceryBaggin {
 			queue = new LinkedList();
 		}
 		
+		
 		// Iterate through file and create items objects
 		Collections.sort(itemList);
+		
+		WorldState start = new WorldState()
+		
 		for(Item i : itemList) {
 			System.out.println("ItemIndex: " + i.getNum() + ", size: " + i.getSize());
 		}
@@ -108,7 +112,7 @@ public class GroceryBaggin {
 		
 	}
 	
-	private static WorldState baggging(WorldState initial) {//queue		
+	private static WorldState bagging(WorldState initial) {//queue		
 		
 		queue.add(initial);
 		
@@ -117,7 +121,7 @@ public class GroceryBaggin {
 			WorldState temp = queue.poll();
 			for(Item I : temp.itemList) {
 				
-				WorldState nextState = temp.putNextItem();
+				WorldState nextState = temp.putNextItem(I);
 				if(nextState!=null) {
 				queue.add(nextState);
 					if(goal(nextState)) {
