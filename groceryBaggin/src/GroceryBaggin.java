@@ -28,8 +28,12 @@ public class GroceryBaggin {
 			queue = new LinkedList();
 		}
 		
+		
 		// Iterate through file and create items objects
 		Collections.sort(itemList);
+		
+		WorldState start = new WorldState()
+		
 		for(Item i : itemList) {
 			System.out.println("ItemIndex: " + i.getNum() + ", size: " + i.getSize());
 		}
