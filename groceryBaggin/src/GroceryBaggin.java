@@ -54,18 +54,40 @@ public class GroceryBaggin {
 		// Format: Name Weight constraint itemA ... itemZ
 		String itemArr[] = item.split(" ");
 		
+		if(itemArr.length == 1)
+			return;
+		
 		int itemIndex = Integer.parseInt(itemArr[0].substring(4));
 		int itemWeight = Integer.parseInt(itemArr[1]);
 		
-		// + constraint or - constraint
-		String itemSymbol = itemArr[2];
+		// + constraint or - constraint or no constraint
+		char itemSymbol;
+		if(itemArr.length > 2) {
+			itemSymbol = itemArr[2].charAt(0);
+		}
+		else {
+			itemSymbol = ' '; //empty
+		}
 		
 		// Loop through all constraint items and create constraint bit
 		BitSet constraintBits = new BitSet(totalItems);
-		for(int i = 4; i < itemArr.length; i++) {
-			
+		if(itemSymbol == '+') {
+			constraintBits.set(0, totalItems);
+			constraintBits.clear(itemIndex);
 		}
 		
+		//System.out.println(constraintBits);
+		for(int i = 3; i < itemArr.length; i++) {
+			int constraintItem = Integer.parseInt(itemArr[i].substring(4));
+			
+			if(itemSymbol == '+') {
+				constraintBits.clear(constraintItem);
+			}
+			else { // - constraint
+				constraintBits.set(constraintItem);
+			}
+		}
+		System.out.println(constraintBits);
 		// Create new Item
 		Item newItem = new Item(itemIndex, itemWeight, constraintBits);
 		itemList.add(newItem);
