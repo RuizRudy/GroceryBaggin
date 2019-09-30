@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.Stack;
 
 public class GroceryBaggin {
 
@@ -18,15 +19,24 @@ public class GroceryBaggin {
 	private static int index = 0;
 	
 	static Queue<WorldState> queue;
+	static Stack<WorldState> stack;
 	
 	public static void main(String[] args) {
 		parseFile(args[0]);
-		//parseArgs(args[1]);
+		
+		// Check if all items weigh more than bags can hold
+		if((bags * bagWeight) < totalItemWeight) {
+			System.out.println("Weight of all items exceeds total amount of bag weight. Exiting");
+			return;
+		}
+		
 		//TODO this needs to be taken in as an argument 
-		searchType = 0;
+		searchType = parseSearchType(args[1]);
 		if(searchType==0) {
 			queue = new LinkedList();
 		}
+		else if(searchType==1)
+			stack = new Stack();
 		
 		
 		// Iterate through file and create items objects
@@ -43,34 +53,39 @@ public class GroceryBaggin {
 
 	private static void parseFile(String file) {
 		// Open file
-				try {
-					File openFile = new File(file);
-					
-					// Iterate through file, get total items, check if sum(itemWeight) < sum(bagWeight)
-					Scanner sc = new Scanner(openFile);
-					while (sc.hasNextLine()) {
-						sc.nextLine();
-						
-						// Add to total Items
-						totalItems++;
-					}
-					sc.close();
-					
-					// Iterate through file and create items
-					sc = new Scanner(openFile);
-					while (sc.hasNextLine()) {
-						createNewItem(sc.nextLine());
-					}
-					
-					sc.close();
-				}
-				catch(Exception e) {
-					System.out.println("Could not open file!");
-				}
+		try {
+			File openFile = new File(file);
+
+			// Iterate through file, get total items, check if sum(itemWeight) < sum(bagWeight)
+			Scanner sc = new Scanner(openFile);
+			while (sc.hasNextLine()) {
+				sc.nextLine();
+
+				// Add to total Items
+				totalItems++;
+			}
+			sc.close();
+
+			// Iterate through file and create items
+			sc = new Scanner(openFile);
+			while (sc.hasNextLine()) {
+				createNewItem(sc.nextLine());
+			}
+
+			sc.close();
+		}
+		catch(Exception e) {
+			System.out.println("Could not open file!");
+		}
 	}
 	
-	private static int parseArgs(String arg){
-		return 0;
+	private static int parseSearchType(String arg){
+		if(arg.compareTo("-breadth") == 0)
+			return 0;
+		else if (arg == "-depth")
+			return 1;
+		else 
+			return 9;
 	}
 	
 	private static void createNewItem(String item) {
@@ -90,9 +105,12 @@ public class GroceryBaggin {
 			return;
 		}
 		
-		// parse item index and weight 
+		// parse item index
 		int itemIndex = Integer.parseInt(itemArr[0].substring(4));
+		
+		// parse item weight and add to total
 		int itemWeight = Integer.parseInt(itemArr[1]);
+		totalItemWeight += itemWeight;
 		
 		// + constraint or - constraint or no constraint
 		char itemSymbol;
