@@ -35,7 +35,7 @@ public class GroceryBaggin {
 		if(searchType==0) {
 			queue = new LinkedList();
 		}
-		else if(searchType==1)
+		else if(searchType==1) {
 			stack = new Stack();
 		
 		}		
