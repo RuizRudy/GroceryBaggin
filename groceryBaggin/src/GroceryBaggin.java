@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class GroceryBaggin {
 
-	private static List<Item> itemsList;
+	private static List<Item> itemList;
 	private static int totalItems = -2;
 	private static int totalItemWeight = 0;
 	private static int totalBagsWeight;
@@ -62,13 +62,13 @@ public class GroceryBaggin {
 		
 		// Loop through all constraint items and create constraint bit
 		BitSet constraintBits = new BitSet(totalItems);
-		for(int i = 3; i < itemArr.length; i++) {
+		for(int i = 4; i < itemArr.length; i++) {
 			
 		}
 		
 		// Create new Item
-		Item newItem = Item(itemArr[0], itemArr[1]);
-		
+		Item newItem = new Item(itemIndex, itemWeight, constraintBits);
+		itemList.add(newItem);
 		// Add to itemList
 		
 	}
