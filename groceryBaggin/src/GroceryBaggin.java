@@ -31,19 +31,12 @@ public class GroceryBaggin {
 		}
 		
 		//TODO this needs to be taken in as an argument 
-		searchType = parseSearchType(args[1]);
-		if(searchType==0) {
-			queue = new LinkedList();
-		}
-		else if(searchType==1) {
-			stack = new Stack();
-		
-		}		
+			
 		
 		// Iterate through file and create items objects
 		Collections.sort(itemList);
 		for(Item i : itemList) {
-			System.out.println("ItemIndex: " + i.getNum() + ", size: " + i.getSize());
+//			System.out.println("ItemIndex: " + i.getNum() + ", size: " + i.getSize());
 		}		
 		//create empty bags list for worldstate
 		List<Bag> bagList = new ArrayList<Bag>();
@@ -53,7 +46,19 @@ public class GroceryBaggin {
 		}
 		
 		WorldState start = new WorldState(bagList,itemList);
-		WorldState result = bagging(start);//The start of bagging
+		searchType = parseSearchType(args[1]);
+		WorldState result =null;
+		
+		if(searchType==0) {
+			queue = new LinkedList();
+			result = bagging(start);//The start of bagging
+		}
+		else if(searchType==1) {
+			
+			stack = new Stack();
+			result = bagging(start,1);//The start of bagging
+		}	
+		
 		
 		
 		if(result!=null) {
@@ -96,7 +101,7 @@ public class GroceryBaggin {
 	private static int parseSearchType(String arg){
 		if(arg.compareTo("-breadth") == 0)
 			return 0;
-		else if (arg == "-depth")
+		else if (arg.compareTo("-depth")==0)
 			return 1;
 		else 
 			return 9;
@@ -153,7 +158,7 @@ public class GroceryBaggin {
 				constraintBits.set(constraintItem);
 			}
 		}
-		System.out.println(constraintBits);
+//		System.out.println(constraintBits);
 		// Create new Item
 		Item newItem = new Item(itemIndex, itemWeight, constraintBits);
 		itemList.add(newItem);
@@ -177,6 +182,30 @@ public class GroceryBaggin {
 
 				if(nextState!=null) {					
 					queue.add(nextState);				
+					if(goal(nextState)) {						
+						return nextState;
+					}
+				}
+			}			
+		}
+		return null;	
+	}
+	private static WorldState bagging(WorldState initial,int i) {//queue		
+		if(totalItemWeight>(bagWeight*bags)) {
+			return null;
+		}
+		stack.add(initial);
+		
+		while(!stack.isEmpty()) {
+		
+			WorldState temp = stack.pop();
+
+			for(Item I : temp.itemList) {
+
+				WorldState nextState = temp.putNextItem(I);
+
+				if(nextState!=null) {					
+					stack.add(nextState);				
 					if(goal(nextState)) {						
 						return nextState;
 					}
