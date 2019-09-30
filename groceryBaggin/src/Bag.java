@@ -4,7 +4,7 @@ public class Bag {
 	
 	private int spaceRemaining;//Space remaining in bag
 	private BitSet constraints;//0 if allowed in bag 1 if not
-	private BitSet bagItems;//1 for items contained in bag
+	public BitSet bagItems;//1 for items contained in bag
 	
 	/**
 	 * Initialize variables to represent Bag space
