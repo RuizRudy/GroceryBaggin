@@ -104,21 +104,35 @@ public class GroceryBaggin {
 		
 	}
 	
-	private static void bagging() {
+	private static WorldState baggging(WorldState initial) {//queue		
 		
+		queue.add(initial);
 		
-		
-	}
-	private static WorldState goalCheck(WorldState toCheck) {
-		
-		if (itemList.isEmpty()) {
-			return toCheck;
-		}else {
-			return null;
+		while(!queue.isEmpty()) {
+			
+			WorldState temp = queue.poll();
+			for(Item I : temp.itemList) {
+				
+				WorldState nextState = temp.putNextItem();
+				if(nextState!=null) {
+				queue.add(nextState);
+					if(goal(nextState)) {
+						return nextState;
+					}
+				}
+			}			
 		}
-//		for (Bag B :toCheck.WorldState) {
-//			
-//		}
+		return null;	
+	}
+	
+	private static boolean goal(WorldState toCheck) {
+		
+		if (toCheck.itemList.isEmpty()) {
+			return true;
+		}else {
+			return false;
+		}
+
 	}
 	
 }
