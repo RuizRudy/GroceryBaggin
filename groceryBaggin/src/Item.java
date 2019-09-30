@@ -1,6 +1,7 @@
 import java.util.BitSet;
+import java.util.Comparator;
 
-public class Item {
+public class Item implements Comparable{
 	private int itemNum;// item num is the index value representing the item
 	private int size;// space that an item takes up
 	private BitSet constraints;// 0 if allowed 1 if not
@@ -38,5 +39,24 @@ public class Item {
 	public BitSet getConstraints() {
 		return constraints;
 	}
+	
+	public static Comparator<Item> ItemSizeComparator = new Comparator<Item>() {
+		public int compare(Item s1, Item s2) {
+		   int item1 = s1.getSize();
+		   int item2 = s2.getSize();
 
+		   //ascending order
+		   return item2-item1;
+
+		   //descending order
+		   //return StudentName2.compareTo(StudentName1);
+	    }
+	};
+
+	@Override
+	public int compareTo(Object o) {
+		int compareage=((Item)o).getSize();
+        /* For Ascending order*/
+        return compareage-this.size;
+	}
 }

@@ -1,5 +1,7 @@
 import java.io.File;
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -7,7 +9,7 @@ import java.util.Scanner;
 
 public class GroceryBaggin {
 
-	private static List<Item> itemList;
+	public static List<Item> itemList = new ArrayList();
 	private static int totalItems = -2;
 	private static int totalItemWeight = 0;
 	private static int totalBagsWeight;
@@ -24,8 +26,10 @@ public class GroceryBaggin {
 		}
 		
 		// Iterate through file and create items objects
-		
-		
+		Collections.sort(itemList);
+		for(Item i : itemList) {
+			System.out.println("ItemIndex: " + i.getNum() + ", size: " + i.getSize());
+		}
 		//
 		
 	}
