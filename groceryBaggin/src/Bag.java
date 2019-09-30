@@ -3,8 +3,9 @@ import java.util.BitSet;
 public class Bag {
 	
 	private int spaceRemaining;//Space remaining in bag
-	private BitSet constraints;//0 if allowed in bag 1 if not
+	public BitSet constraints;//0 if allowed in bag 1 if not
 	public BitSet bagItems;//1 for items contained in bag
+	public int totalItems;
 	
 	/**
 	 * Initialize variables to represent Bag space
@@ -12,7 +13,7 @@ public class Bag {
 	 * @param size
 	 */
 	public Bag(int totalItems, int size) {
-		
+		this.totalItems=totalItems;
 		this.spaceRemaining = size;
 		constraints = new BitSet(totalItems);
 		constraints.set(0,totalItems,false);
@@ -29,10 +30,11 @@ public class Bag {
 	 */
 	public boolean itemCheck(Item newItem) {
 		
-		if((spaceRemaining >= newItem.getSize()) && constraints.get(newItem.getNum()) && !newItem.getConstraints().intersects(bagItems) ) {
+		if((spaceRemaining >= newItem.getSize()) && !constraints.get(newItem.getNum()) && !newItem.getConstraints().intersects(bagItems) ) {
 			spaceRemaining -= newItem.getSize();
 			bagItems.set(newItem.getNum());		
 			constraints.or(newItem.getConstraints());
+			
 		return true;	
 		
 		}else return false;		
@@ -45,5 +47,29 @@ public class Bag {
 	public boolean isFull() {		
 		return (spaceRemaining>=0);
 	}
+	public String toString() {
+		String s = "";
+		s+=bagItems;
+		return s;
+	}
+	public Bag clone() {
+		
+		Bag bag = new Bag(this.totalItems,this.spaceRemaining);
+		bag.totalItems = this.totalItems;
+		bag.constraints=new BitSet();
+		bag.constraints= (BitSet) this.constraints.clone();
+		bag.bagItems=new BitSet();
+		bag.bagItems= (BitSet) this.bagItems.clone();
+		
+		return bag;
+		
+		
+	}
 
 }
+
+
+
+
+
+

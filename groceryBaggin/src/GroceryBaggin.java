@@ -26,17 +26,29 @@ public class GroceryBaggin {
 		searchType = 0;
 		if(searchType==0) {
 			queue = new LinkedList();
-		}
-		
+		}		
 		
 		// Iterate through file and create items objects
 		Collections.sort(itemList);
-		
-		WorldState start = new WorldState()
-		
 		for(Item i : itemList) {
 			System.out.println("ItemIndex: " + i.getNum() + ", size: " + i.getSize());
+		}		
+		//create empty bags list for worldstate
+		List<Bag> bagList = new ArrayList<Bag>();
+		for(int i=0;i<bags;i++) {
+			Bag newbag = new Bag(totalItems,bagWeight);
+			bagList.add(newbag);
 		}
+		
+		WorldState start = new WorldState(bagList,itemList);
+		WorldState result = bagging(start);//The start of bagging
+		
+		
+		if(result!=null) {
+			System.out.println("SUCCESS");
+			System.out.print(result.toString());
+		}
+		
 		//
 		
 	}
@@ -130,18 +142,22 @@ public class GroceryBaggin {
 	}
 	
 	private static WorldState bagging(WorldState initial) {//queue		
-		
+		if(totalItemWeight>(bagWeight*bags)) {
+			return null;
+		}
 		queue.add(initial);
 		
 		while(!queue.isEmpty()) {
-			
+		
 			WorldState temp = queue.poll();
+
 			for(Item I : temp.itemList) {
-				
+
 				WorldState nextState = temp.putNextItem(I);
-				if(nextState!=null) {
-				queue.add(nextState);
-					if(goal(nextState)) {
+
+				if(nextState!=null) {					
+					queue.add(nextState);				
+					if(goal(nextState)) {						
 						return nextState;
 					}
 				}
@@ -151,7 +167,7 @@ public class GroceryBaggin {
 	}
 	
 	private static boolean goal(WorldState toCheck) {
-		
+
 		if (toCheck.itemList.isEmpty()) {
 			return true;
 		}else {
