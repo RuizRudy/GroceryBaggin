@@ -58,4 +58,7 @@ public class Item implements Comparable{
         /* For Ascending order*/
         return compareage-this.size;
 	}
+	public String toString() {
+		return "item"+getNum();
+	}
 }
