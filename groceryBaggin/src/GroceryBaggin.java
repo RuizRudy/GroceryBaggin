@@ -12,13 +12,16 @@ public class GroceryBaggin {
 	public static List<Item> itemList = new ArrayList();
 	private static int totalItems = -2;
 	private static int totalItemWeight = 0;
-	private static int totalBagsWeight;
+	private static int bags;
+	private static int bagWeight;
 	private static int searchType;
+	private static int index = 0;
 	
 	static Queue<WorldState> queue;
 	
 	public static void main(String[] args) {
 		parseFile(args[0]);
+		//parseArgs(args[1]);
 		//TODO this needs to be taken in as an argument 
 		searchType = 0;
 		if(searchType==0) {
@@ -62,14 +65,28 @@ public class GroceryBaggin {
 				}
 	}
 	
+	private static int parseArgs(String arg){
+		return 0;
+	}
+	
 	private static void createNewItem(String item) {
 		// Split item line into its parameters
 		// Format: Name Weight constraint itemA ... itemZ
 		String itemArr[] = item.split(" ");
 		
-		if(itemArr.length == 1)
+		// Save amount of bags and bag weight
+		if(index == 0) {
+			bags = Integer.parseInt(itemArr[0]);
+			index++;
 			return;
+		}
+		else if(index == 1) {
+			bagWeight = Integer.parseInt(itemArr[0]);
+			index++;
+			return;
+		}
 		
+		// parse item index and weight 
 		int itemIndex = Integer.parseInt(itemArr[0].substring(4));
 		int itemWeight = Integer.parseInt(itemArr[1]);
 		
@@ -108,7 +125,7 @@ public class GroceryBaggin {
 		
 	}
 	
-	private static WorldState baggging(WorldState initial) {//queue		
+	private static WorldState bagging(WorldState initial) {//queue		
 		
 		queue.add(initial);
 		
@@ -117,7 +134,7 @@ public class GroceryBaggin {
 			WorldState temp = queue.poll();
 			for(Item I : temp.itemList) {
 				
-				WorldState nextState = temp.putNextItem();
+				WorldState nextState = temp.putNextItem(I);
 				if(nextState!=null) {
 				queue.add(nextState);
 					if(goal(nextState)) {
