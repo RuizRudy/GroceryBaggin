@@ -30,6 +30,12 @@ public class Bag {
 	 */
 	public boolean itemCheck(Item newItem) {
 		
+		
+		if(newItem.getConstraints().get(newItem.getNum())) {
+			
+			return false;
+		}
+		
 		if((spaceRemaining >= newItem.getSize()) && !constraints.get(newItem.getNum()) && !newItem.getConstraints().intersects(bagItems) ) {
 			spaceRemaining -= newItem.getSize();
 			bagItems.set(newItem.getNum());		
