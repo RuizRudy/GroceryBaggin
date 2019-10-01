@@ -25,15 +25,20 @@ public class GroceryBaggin {
 	public static void main(String[] args) {
 		parseFile(args[0]);
 		
+		// Sort itemList by weight
+		Collections.sort(itemList);
 		// Check if all items weigh more than bags can hold
 		if((bags * bagWeight) < totalItemWeight) {
 			System.out.println("failure");
 			return;
 		} 
+		if(itemList.isEmpty()||(itemList.get(0).getSize()>bagWeight)) {
+			System.out.println("failure");
+			return;
+		}
 			
 		
-		// Sort itemList by weight
-		Collections.sort(itemList);
+		
 			
 		//create empty bags list for worldstate
 		List<Bag> bagList = new ArrayList<Bag>();
