@@ -10,7 +10,7 @@ import java.util.Stack;
 
 public class GroceryBaggin {
 
-	public static List<Item> itemList = new ArrayList();
+	public static List<Item> itemList = new ArrayList<Item>();
 	private static int totalItems = -2;
 	private static int totalItemWeight = 0;
 	private static int bags;
@@ -21,23 +21,20 @@ public class GroceryBaggin {
 	static Queue<WorldState> queue;
 	static Stack<WorldState> stack;
 	
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		parseFile(args[0]);
 		
 		// Check if all items weigh more than bags can hold
 		if((bags * bagWeight) < totalItemWeight) {
-			System.out.println("Weight of all items exceeds total amount of bag weight. Exiting");
+			System.out.println("failure");
 			return;
-		}
-		
-		//TODO this needs to be taken in as an argument 
+		} 
 			
 		
-		// Iterate through file and create items objects
+		// Sort itemList by weight
 		Collections.sort(itemList);
-		for(Item i : itemList) {
-//			System.out.println("ItemIndex: " + i.getNum() + ", size: " + i.getSize());
-		}		
+			
 		//create empty bags list for worldstate
 		List<Bag> bagList = new ArrayList<Bag>();
 		for(int i=0;i<bags;i++) {
@@ -50,24 +47,23 @@ public class GroceryBaggin {
 		WorldState result =null;
 		
 		if(searchType==0) {
-			queue = new LinkedList();
+			queue = new LinkedList<WorldState>();
 			result = bagging(start);//The start of bagging
 		}
 		else if(searchType==1) {
 			
-			stack = new Stack();
+			stack = new Stack<WorldState>();
 			result = bagging(start,1);//The start of bagging
 		}	
 		
 		
-		
 		if(result!=null) {
-			System.out.println("SUCCESS");
+			System.out.println("success");
 			System.out.print(result.toString());
 		}
-		
-		//
-		
+		else
+			System.out.println("failure");
+
 	}
 
 	private static void parseFile(String file) {

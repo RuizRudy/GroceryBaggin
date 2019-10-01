@@ -43,7 +43,7 @@ public class WorldState {
 		for(Bag b : wState) {
 			for(int i=0;i<b.bagItems.size();i++) {
 				if(b.bagItems.get(i))
-				 toS+="item"+i+" ";
+				 toS+="item"+i+"	";
 			}
 			toS+="\n";
 			
