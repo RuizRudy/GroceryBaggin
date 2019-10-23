@@ -9,68 +9,47 @@ import java.util.Scanner;
 import java.util.Stack;
 
 public class GroceryBaggin {
-
+	
 	public static List<Item> itemList = new ArrayList<Item>();
 	private static int totalItems = -2;
-	private static int totalItemWeight = 0;
-	private static int bags;
-	private static int bagWeight;
+	private static int totalItemWeight = 0;//assigned by create new item when parsing
+	private static int bags;//assigned by create new item when parsing
+	private static int bagWeight;//assigned by create new item when parsing
 	private static int searchType;
 	private static int index = 0;
-	
-	static Queue<WorldState> queue;
-	static Stack<WorldState> stack;
-	
-	@SuppressWarnings("unchecked")
+
 	public static void main(String[] args) {
-		parseFile(args[0]);
+		parseFile(args[0]);//uses parseFile() and CreateNewItem() to create item list
 		
-		// Sort itemList by weight
-		Collections.sort(itemList);
-		// Check if all items weigh more than bags can hold
-		if((bags * bagWeight) < totalItemWeight) {
-			System.out.println("failure");
-			return;
-		} 
-		if(itemList.isEmpty()||(itemList.get(0).getSize()>bagWeight)) {
-			System.out.println("failure");
-			return;
+		List<Bag> bagList = new ArrayList<Bag>();
+		for(int i=0;i<bags;i++) {
+			Bag newbag = new Bag(totalItems,bagWeight);
+			bagList.add(newbag);
 		}
-			
+		depthSearch();
 		
-		
-			
-		//create empty bags list for worldstate
+	}
+	public static void depthSearch() {
 		List<Bag> bagList = new ArrayList<Bag>();
 		for(int i=0;i<bags;i++) {
 			Bag newbag = new Bag(totalItems,bagWeight);
 			bagList.add(newbag);
 		}
 		
-		WorldState start = new WorldState(bagList,itemList);
-		searchType = parseSearchType(args[1]);
-		WorldState result =null;
-		
-		if(searchType==0) {
-			queue = new LinkedList<WorldState>();
-			result = bagging(start);//The start of bagging
-		}
-		else if(searchType==1) {
-			
-			stack = new Stack<WorldState>();
-			result = bagging(start,1);//The start of bagging
-		}	
+		//find MRV 
+		//method of determining LCV
+		//the depth search
 		
 		
-		if(result!=null) {
-			System.out.println("success");
-			System.out.print(result.toString());
-		}
-		else
-			System.out.println("failure");
-
 	}
 
+	
+	
+	
+	/**
+	 * File parser 
+	 * @param file
+	 */
 	private static void parseFile(String file) {
 		// Open file
 		try {
@@ -98,16 +77,10 @@ public class GroceryBaggin {
 			System.out.println("Could not open file!");
 		}
 	}
-	
-	private static int parseSearchType(String arg){
-		if(arg.compareTo("-breadth") == 0)
-			return 0;
-		else if (arg.compareTo("-depth")==0)
-			return 1;
-		else 
-			return 9;
-	}
-	
+	/**
+	 * Parses Item line into item object 
+	 * @param item
+	 */
 	private static void createNewItem(String item) {
 		// Split item line into its parameters
 		// Format: Name Weight constraint itemA ... itemZ
@@ -165,65 +138,6 @@ public class GroceryBaggin {
 		itemList.add(newItem);
 		// Add to itemList
 		
-	}
-	
-	private static WorldState bagging(WorldState initial) {//queue		
-		if(totalItemWeight>(bagWeight*bags)) {
-			return null;
-		}
-		queue.add(initial);
-		
-		while(!queue.isEmpty()) {
-		
-			WorldState temp = queue.poll();
-
-			for(Item I : temp.itemList) {
-
-				WorldState nextState = temp.putNextItem(I);
-
-				if(nextState!=null) {					
-					queue.add(nextState);				
-					if(goal(nextState)) {						
-						return nextState;
-					}
-				}
-			}			
-		}
-		return null;	
-	}
-	private static WorldState bagging(WorldState initial,int i) {//Stack		
-		if(totalItemWeight>(bagWeight*bags)) {
-			return null;
-		}
-		stack.add(initial);
-		
-		while(!stack.isEmpty()) {
-		
-			WorldState temp = stack.pop();
-
-			for(Item I : temp.itemList) {
-
-				WorldState nextState = temp.putNextItem(I);
-
-				if(nextState!=null) {					
-					stack.add(nextState);				
-					if(goal(nextState)) {						
-						return nextState;
-					}
-				}
-			}			
-		}
-		return null;	
-	}
-	
-	private static boolean goal(WorldState toCheck) {
-
-		if (toCheck.itemList.isEmpty()) {
-			return true;
-		}else {
-			return false;
-		}
-
 	}
 	
 }
