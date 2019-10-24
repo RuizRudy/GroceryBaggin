@@ -1,6 +1,7 @@
 import java.io.File;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +19,7 @@ public class GroceryBaggin {
 	private static int bagWeight;//assigned by create new item when parsing
 	private static int searchType;
 	private static int index = 0;
+	private static Stack<WorldState> stack;
 
 	public static void main(String[] args) {
 		parseFile(args[0]);//uses parseFile() and CreateNewItem() to create item list
@@ -27,25 +29,87 @@ public class GroceryBaggin {
 			Bag newbag = new Bag(totalItems,bagWeight);
 			bagList.add(newbag);
 		}
-		depthSearch();
-		localSearch();
+		WorldState result = null;
+		WorldState init = new WorldState(bagList,itemList);
+		stack = new Stack<WorldState>();
 		
-		for(Item i : itemList) {
-			System.out.println(i.getConstraints());
+		stack.add(init);
+		
+//		System.out.println(totalItems);
+//		System.out.println(init.itemList.get(0).constraints.get(4));
+		result = depthSearch();
+		if(result!=null) {
+			System.out.println("success");
+			System.out.print(result.toString());
 		}
+		else
+			System.out.println("failure");
 		
 	}
-	public static void depthSearch() {
-		List<Bag> bagList = new ArrayList<Bag>();
-		for(int i=0;i<bags;i++) {
-			Bag newbag = new Bag(totalItems,bagWeight);
-			bagList.add(newbag);
+	public static List<Bag> CopyBags(List<Bag> src) {
+		List<Bag> newBags = new ArrayList<Bag>();
+		for (Bag b : src) {
+			newBags.add(b.clone());
 		}
 		
-		//find MRV 
+		return newBags;
+		
+	}
+	public static void updateDomains(List<Item> copyItems, BitSet itemConstraint, Bag bag,int j) {//||(i<totalItems && bag.space < copyItems.get(i).getSize()  )
+		System.out.println(itemConstraint.length());
+		for(int i = 0; (i<totalItems && !itemConstraint.get(i));i++ ) {//iterate through list of constraints provided 
+			System.out.println(copyItems.get(i).constraints.length());
+			copyItems.get(i).constraints.set(j,false);//grab the item and change its domain 
+		}
+	}
+	public static void LCD(List<Item> copyItems,List<Bag> copyBags, Item I){
+		for(int j=0; I.domain.get(j)&& j<bags;j++) {
+			copyBags.get(j).LCD = 0;
+			
+			
+			for(int i = 0;i<totalItems && !I.constraints.get(i) && copyItems.get(i).domain.get(j) ;i++) {//part of I's constraints and had J as a domain value
+				copyBags.get(j).LCD++;				
+			}
+		}
+		
+		Collections.sort(copyBags);
+	
+	}
+	public static WorldState depthSearch() {
+		while(!stack.isEmpty()) {			
+			WorldState temp = stack.pop();
+			Collections.sort(temp.itemList);
+			
+			for(Item I : temp.itemList) {
+			
+					
+				//sort bags for lcd when thinking about I
+					LCD(temp.itemList,temp.bagList,I);
+				
+					for(int j=0; I.domain.get(j)&& j<bags;j++) {
+						List<Item> copyItems = new ArrayList<Item>(CopyItems(temp.itemList));//make copies of current WS item list
+						List<Bag> copyBags = new ArrayList<Bag>(CopyBags(temp.bagList));//Make copy of current WS Bags					
+						copyBags.get(j).bagItems.set(I.getID());	
+						copyBags.get(j).space=copyBags.get(j).space-I.getSize();
+						copyItems.remove(I);
+						updateDomains(copyItems,I.constraints,copyBags.get(j),j);
+						
+						WorldState newState = new WorldState(copyBags,copyItems);
+						stack.add(newState);
+						
+						if(goal(newState)) {
+							return newState;
+						}else {
+						
+						}			
+					}
+					depthSearch();
+			}			
+		}
+		//find MRV using cardinality of bit set and item size	
 		//method of determining LCV
 		//the depth search
-		
+		return null;
 		
 	}
 	public static void localSearch() {
@@ -63,6 +127,8 @@ public class GroceryBaggin {
 	
 	
 	
+	
+
 	/**
 	 * File parser 
 	 * @param file
@@ -93,6 +159,20 @@ public class GroceryBaggin {
 		catch(Exception e) {
 			System.out.println("Could not open file!");
 		}
+	}
+	/**
+	 * used to see if this state is a goal state
+	 * @param toCheck
+	 * @return
+	 */
+	private static boolean goal(WorldState toCheck) {
+
+		if (toCheck.itemList.isEmpty()) {
+			return true;
+		}else {
+			return false;
+		}
+
 	}
 	/**
 	 * Parses Item line into item object 
@@ -151,10 +231,12 @@ public class GroceryBaggin {
 					itemList.get(constraintItem).updateBitSet(itemIndex, 1);
 				}
 			}
+			
 		}
 //		System.out.println(constraintBits);
 		// Create new Item
-		Item newItem = new Item(itemIndex, itemWeight, constraintBits);
+	
+		Item newItem = new Item(itemIndex, itemWeight, constraintBits,bags);
 		itemList.add(newItem);
 		// Add to itemList
 	}

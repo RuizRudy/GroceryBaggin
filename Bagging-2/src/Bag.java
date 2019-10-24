@@ -1,16 +1,18 @@
 import java.util.BitSet;
 
-public class Bag {
+public class Bag implements Comparable{
 	
 	public int totalItems;//used for bit set size
 	public int space;//will be decremented when items are added
 	public BitSet bagItems; //when an item is added to the bag its corresponding bit index will be flipped to 1
+	public int LCD;
 	/**
 	 * Bag constructor
 	 * @param totalItems
 	 * @param size
 	 */
 	public Bag(int totalItems, int size) {
+		LCD=0;
 		this.totalItems=totalItems;
 		this.space = size;
 		bagItems = new BitSet(totalItems);
@@ -29,6 +31,36 @@ public class Bag {
 	 */
 	public BitSet getBagItems() {
 		return bagItems;
+	}
+	/**
+	 * used for making proper clones of bag
+	 */
+	public Bag clone() {
+		
+		Bag bag = new Bag(this.totalItems,this.space);
+		bag.totalItems = this.totalItems;
+		bag.bagItems=new BitSet();
+		bag.bagItems= (BitSet) this.bagItems.clone();
+		
+		return bag;
+		
+		
+	}
+	@Override
+	public int compareTo(Object o) {
+		if(this.LCD>((Bag)o).LCD) {
+			return 1;
+		}
+		if(this.LCD==((Bag)o).LCD) {
+			return 0;
+		}
+		return -1;
+	}
+	
+	public String toString() {
+		String s = "";
+		s+=bagItems;
+		return s;
 	}
 
 }
