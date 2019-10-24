@@ -191,7 +191,7 @@ public class GroceryBaggin {
 		}
 		return null;	
 	}
-	private static WorldState bagging(WorldState initial,int i) {//Stack		
+	private static WorldState bagging(WorldState initial,int i) {//queue		
 		if(totalItemWeight>(bagWeight*bags)) {
 			return null;
 		}
