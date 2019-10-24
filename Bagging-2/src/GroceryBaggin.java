@@ -77,7 +77,7 @@ public class GroceryBaggin {
 	
 	}
 	public static WorldState depthSearch() {
-		/*while(!stack.isEmpty()) {			
+		while(!stack.isEmpty()) {			
 			WorldState temp = stack.pop();
 			Collections.sort(temp.itemList);
 			
@@ -110,7 +110,7 @@ public class GroceryBaggin {
 		//find MRV using cardinality of bit set and item size	
 		//method of determining LCV
 		//the depth search
-		 * */
+		 
 		return null;
 		
 	}
