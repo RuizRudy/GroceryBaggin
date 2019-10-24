@@ -31,6 +31,7 @@ public class Item {
 	public int getSize() {
 		return size;
 	}
+	
 	/**
 	 * returns BitSet of item constraints to caller
 	 * @return
@@ -39,6 +40,19 @@ public class Item {
 		return constraints;
 	}
 	
+	public void updateBitSet(int index, int value) {
+		if(value == 0) // clear
+			constraints.clear(index);
+		else
+			constraints.set(index);
+	}
 	
+	public boolean equals(Object object) {
+		boolean same = false;
+		if (this.ID == ((Item)object).ID) {
+			same = this.ID == ((Item)object).ID;
+		}
+		return same;
+	}
 
 }

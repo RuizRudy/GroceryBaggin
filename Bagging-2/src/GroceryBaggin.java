@@ -28,6 +28,10 @@ public class GroceryBaggin {
 		}
 		depthSearch();
 		
+		for(Item i : itemList) {
+			System.out.println(i.getConstraints());
+		}
+		
 	}
 	public static void depthSearch() {
 		List<Bag> bagList = new ArrayList<Bag>();
@@ -117,8 +121,8 @@ public class GroceryBaggin {
 		// Loop through all constraint items and create constraint bit
 		BitSet constraintBits = new BitSet(totalItems);
 		if(itemSymbol == '+') {
-			constraintBits.set(0, totalItems);
-			constraintBits.clear(itemIndex);
+			constraintBits.set(0, totalItems); // set all other items to cant bag
+			constraintBits.clear(itemIndex); // can bag with itself
 		}
 		
 		//System.out.println(constraintBits);
@@ -126,10 +130,13 @@ public class GroceryBaggin {
 			int constraintItem = Integer.parseInt(itemArr[i].substring(4));
 			
 			if(itemSymbol == '+') {
-				constraintBits.clear(constraintItem);
+				constraintBits.clear(constraintItem); // 0 if possible to bag item
 			}
 			else { // - constraint
-				constraintBits.set(constraintItem);
+				constraintBits.set(constraintItem); // 1 if dont bag with item
+				if(constraintItem < itemIndex) {
+					itemList.get(constraintItem).updateBitSet(itemIndex, 1);
+				}
 			}
 		}
 //		System.out.println(constraintBits);
@@ -137,7 +144,6 @@ public class GroceryBaggin {
 		Item newItem = new Item(itemIndex, itemWeight, constraintBits);
 		itemList.add(newItem);
 		// Add to itemList
-		
 	}
 	
 }
