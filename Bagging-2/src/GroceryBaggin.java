@@ -19,7 +19,7 @@ public class GroceryBaggin {
 	private static int searchType;
 	private static int index = 0;
 	private static Stack<WorldState> stack;
-
+public static int first=0;
 	public static void main(String[] args) {
 		parseFile(args[0]);//uses parseFile() and CreateNewItem() to create item list
 		
@@ -54,20 +54,49 @@ public class GroceryBaggin {
 		return newBags;
 		
 	}
-	public static void updateDomains(List<Item> copyItems, BitSet itemConstraint, Bag bag,int j) {//||(i<totalItems && bag.space < copyItems.get(i).getSize()  )
-		System.out.println(itemConstraint.length());
-		for(int i = 0; (i<totalItems && !itemConstraint.get(i));i++ ) {//iterate through list of constraints provided 
-			System.out.println(copyItems.get(i).constraints.length());
-			copyItems.get(i).constraints.set(j,false);//grab the item and change its domain 
+	public static List<Item> CopyItems(List<Item> src) {
+		List<Item> newItems = new ArrayList<Item>();
+		for (Item I : src) {
+			newItems.add(I.clone());
 		}
+		
+		return newItems;
+		
 	}
+	
+	
+	public static void updateDomains(List<Item> copyItems, BitSet itemConstraint, Bag bag,int j) {//||(i<totalItems && bag.space < copyItems.get(i).getSize()  )
+		//System.out.println(copyItems.size());
+		for(Item I: copyItems) {
+			if(!itemConstraint.get(I.getID())) {
+				I.constraints.set(j,false);
+			}
+			if(bag.space < I.getSize() ) {
+				I.constraints.set(j,false);
+			}
+		}
+//		
+//		for(int i = 0; (i<totalItems && !itemConstraint.get(i));i++ ) {//iterate through list of constraints provided 
+//			//System.out.println(copyItems.get(i).constraints.length()+"  inside");
+//			System.out.println(j);
+//			copyItems.get(i);
+//			copyItems.get(i).constraints.set(j,false);//grab the item and change its domain 
+//		}
+	}
+	
+	
 	public static void LCD(List<Item> copyItems,List<Bag> copyBags, Item I){
-		for(int j=0; I.domain.get(j)&& j<bags;j++) {
-			copyBags.get(j).LCD = 0;
+		for(int j=0; j<bags;j++) {
+			if(I.domain.get(j)) {
+			  copyBags.get(j).LCD = 0;
 			
 			
-			for(int i = 0;i<totalItems && !I.constraints.get(i) && copyItems.get(i).domain.get(j) ;i++) {//part of I's constraints and had J as a domain value
-				copyBags.get(j).LCD++;				
+		//	for(int i = 0;i<totalItems && !I.constraints.get(i) && copyItems.get(i).domain.get(j) ;i++) {//part of I's constraints and had J as a domain value
+			  for(Item o: copyItems) {
+				  if(!I.constraints.get(o.getID()) && o.domain.get(j)) {
+				  	copyBags.get(j).LCD++;	
+				  }
+			  }
 			}
 		}
 		
@@ -75,35 +104,65 @@ public class GroceryBaggin {
 	
 	}
 	public static WorldState depthSearch() {
-		while(!stack.isEmpty()) {			
+		
+		while(!stack.isEmpty()) {	
 			WorldState temp = stack.pop();
+			if(goal(temp)) {
+				stack.add(temp);
+				return temp;
+				
+			}
 			Collections.sort(temp.itemList);
 			
 			for(Item I : temp.itemList) {
 			
 					
 				//sort bags for lcd when thinking about I
+					if(temp.itemList.size()>1) {
 					LCD(temp.itemList,temp.bagList,I);
+					}
 				
 					for(int j=0; I.domain.get(j)&& j<bags;j++) {
+						if(first<5) {
+							System.out.println(I.getID());
+							System.out.println("temp"+temp.itemList);
+						}
+						int index = temp.itemList.indexOf(I);
 						List<Item> copyItems = new ArrayList<Item>(CopyItems(temp.itemList));//make copies of current WS item list
 						List<Bag> copyBags = new ArrayList<Bag>(CopyBags(temp.bagList));//Make copy of current WS Bags					
 						copyBags.get(j).bagItems.set(I.getID());	
 						copyBags.get(j).space=copyBags.get(j).space-I.getSize();
-						copyItems.remove(I);
-						updateDomains(copyItems,I.constraints,copyBags.get(j),j);
+						if(first<5) {
+						System.out.println("before "+copyItems);
+						}
+						copyItems.remove(index);
+						if(first<5) {
+							System.out.println("after "+copyItems +"\n");
+							first++;
+							}
+						if(first<5) {
+							for(Bag b:copyBags) {
+							System.out.println(b);
+							}}
+						
 						
 						WorldState newState = new WorldState(copyBags,copyItems);
-						stack.add(newState);
+						newState.updateDomains(I.constraints,j);
 						
-						if(goal(newState)) {
-							return newState;
-						}else {
-						
-						}			
-					}
-					depthSearch();
-			}			
+						stack.add(newState);				
+							if(goal(newState)) {
+//								if(first<6) {
+//								for(Bag b:copyBags) {
+//								System.out.println(b);
+//								}}
+//								first++;
+								return newState;
+							}else {
+								depthSearch();
+							}	
+					}			
+			}
+					
 		}
 		//find MRV using cardinality of bit set and item size	
 		//method of determining LCV
@@ -153,7 +212,7 @@ public class GroceryBaggin {
 	 * @return
 	 */
 	private static boolean goal(WorldState toCheck) {
-
+//System.out.println("check");
 		if (toCheck.itemList.isEmpty()) {
 			return true;
 		}else {
