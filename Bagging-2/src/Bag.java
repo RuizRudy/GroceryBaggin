@@ -7,12 +7,14 @@ public class Bag implements Comparable{
 	public BitSet bagItems; //when an item is added to the bag its corresponding bit index will be flipped to 1
 	public BitSet constraintBits; // bits that show if the bag is constraint to an item index (0 ok - 1 not)
 	public int LCD;
+	public int ID;
 	/**
 	 * Bag constructor
 	 * @param totalItems
 	 * @param size
 	 */
-	public Bag(int totalItems, int size) {
+	public Bag(int ID,int totalItems, int size) {
+		this.ID = ID;
 		LCD=0;
 		this.totalItems=totalItems;
 		this.space = size;
@@ -54,7 +56,7 @@ public class Bag implements Comparable{
 	 */
 	public Bag clone() {
 		
-		Bag bag = new Bag(this.totalItems,this.space);
+		Bag bag = new Bag(this.ID,this.totalItems,this.space);
 		bag.totalItems = this.totalItems;
 		bag.bagItems=new BitSet();
 		bag.bagItems= (BitSet) this.bagItems.clone();

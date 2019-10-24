@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -21,28 +22,18 @@ public class WorldState {
 		Item mrv = Collections.max(itemList);		
 		return mrv.getID();
 	}
-	public int LCD() {
-		return 0;
-	}
+	public void updateDomains(BitSet itemConstraint, int j) {//||(i<totalItems && bag.space < copyItems.get(i).getSize()  )
+		//System.out.println(itemConstraint);
+		for(Item I: this.itemList) {
+			if(itemConstraint.get(I.getID())) {
+				//System.out.println(I.getID());
+				I.domain.set(j,false);
+			}
+			if(bagList.get(j).space < I.getSize() ) {
+				I.domain.set(j,false);
+			}
+		}
 
-	
-	public List<Bag> CopyBags(List<Bag> src) {
-		List<Bag> newBags = new ArrayList<Bag>();
-		for (Bag b : src) {
-			newBags.add(b.clone());
-		}
-		
-		return newBags;
-		
-	}
-	public List<Item> CopyItems(List<Item> src) {
-		List<Item> newItems = new ArrayList<Item>();
-		for (Item I : src) {
-			newItems.add(I.clone());
-		}
-		
-		return newItems;
-		
 	}
 	public List<Bag> getBags(){
 		return bagList;
@@ -50,6 +41,7 @@ public class WorldState {
 	public List<Item> getItems(){
 		return itemList;
 	}
+
 
 	public String toString() {
 		String toS = "";
