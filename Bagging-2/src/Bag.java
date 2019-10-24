@@ -32,6 +32,14 @@ public class Bag implements Comparable{
 	public BitSet getBagItems() {
 		return bagItems;
 	}
+	
+	/**
+	 * Add item to the bag
+	 * @return
+	 */
+	public void addItem(int itemID) {
+		bagItems.set(itemID);
+	}
 	/**
 	 * used for making proper clones of bag
 	 */

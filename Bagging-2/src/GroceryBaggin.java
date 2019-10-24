@@ -37,7 +37,8 @@ public class GroceryBaggin {
 		
 //		System.out.println(totalItems);
 //		System.out.println(init.itemList.get(0).constraints.get(4));
-		result = depthSearch();
+		//result = depthSearch();
+		result = localSearch();
 		if(result!=null) {
 			System.out.println("success");
 			System.out.print(result.toString());
@@ -105,14 +106,15 @@ public class GroceryBaggin {
 					}
 					depthSearch();
 			}			
-		}
+		} 
 		//find MRV using cardinality of bit set and item size	
 		//method of determining LCV
 		//the depth search
 		return null;
 		
 	}
-	public static void localSearch() {
+		
+	public static WorldState localSearch() {
 		List<Bag> bagList = new ArrayList<Bag>();
 		for(int i=0;i<bags;i++) {
 			Bag newbag = new Bag(totalItems,bagWeight);
@@ -121,8 +123,12 @@ public class GroceryBaggin {
 		
 		Random rand = new Random();
 		for(Item i : itemList) {
-			
+			bagList.get(rand.nextInt(3)+1).addItem(i.getID());
 		}
+		for(Bag b : bagList) {
+			System.out.println(b.getBagItems());
+		}
+		return null;
 	}
 	
 	
