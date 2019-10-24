@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Stack;
+import java.util.Random;
 
 public class GroceryBaggin {
 	
@@ -27,6 +28,7 @@ public class GroceryBaggin {
 			bagList.add(newbag);
 		}
 		depthSearch();
+		localSearch();
 		
 		for(Item i : itemList) {
 			System.out.println(i.getConstraints());
@@ -46,7 +48,18 @@ public class GroceryBaggin {
 		
 		
 	}
-
+	public static void localSearch() {
+		List<Bag> bagList = new ArrayList<Bag>();
+		for(int i=0;i<bags;i++) {
+			Bag newbag = new Bag(totalItems,bagWeight);
+			bagList.add(newbag);
+		}
+		
+		Random rand = new Random();
+		for(Item i : itemList) {
+			
+		}
+	}
 	
 	
 	
