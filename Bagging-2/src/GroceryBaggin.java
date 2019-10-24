@@ -77,7 +77,7 @@ public class GroceryBaggin {
 	
 	}
 	public static WorldState depthSearch() {
-		while(!stack.isEmpty()) {			
+		/*while(!stack.isEmpty()) {			
 			WorldState temp = stack.pop();
 			Collections.sort(temp.itemList);
 			
@@ -110,6 +110,7 @@ public class GroceryBaggin {
 		//find MRV using cardinality of bit set and item size	
 		//method of determining LCV
 		//the depth search
+		 * */
 		return null;
 		
 	}
@@ -123,11 +124,29 @@ public class GroceryBaggin {
 		
 		Random rand = new Random();
 		for(Item i : itemList) {
-			bagList.get(rand.nextInt(3)+1).addItem(i.getID());
+			bagList.get(rand.nextInt(bags)).addItem(i.getID(),i.getConstraints());
 		}
+		
+		int totalConflicts = 0;
 		for(Bag b : bagList) {
 			System.out.println(b.getBagItems());
+			b.valueOfConflicts();
 		}
+		
+		WorldState current = new WorldState(bagList, itemList);
+		
+		while(current.isGoalState() != true) {
+			// neighbor move
+			WorldState neighbor = new WorldState(bagList, itemList);
+			
+			
+			//if neighbor.value <= current.value
+			if(neighbor.valueOfConflicts() < current.valueOfConflicts()) {
+				
+			}
+		}
+		
+		
 		return null;
 	}
 	
