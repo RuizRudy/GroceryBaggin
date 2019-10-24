@@ -4,7 +4,7 @@ import java.util.Comparator;
 public class Item implements Comparable {
 	
 	private int ID;//item number identity 
-	private int size;
+	public int size;
 	public BitSet constraints;
 	public BitSet domain;
 	

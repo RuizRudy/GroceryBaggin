@@ -22,26 +22,18 @@ public class WorldState {
 		Item mrv = Collections.max(itemList);		
 		return mrv.getID();
 	}
-	public int LCD() {
-		return 0;
-	}
 	public void updateDomains(BitSet itemConstraint, int j) {//||(i<totalItems && bag.space < copyItems.get(i).getSize()  )
-		//System.out.println(copyItems.size());
-		for(Item I: itemList) {
-			if(!itemConstraint.get(I.getID())) {
-				I.constraints.set(j,false);
+		//System.out.println(itemConstraint);
+		for(Item I: this.itemList) {
+			if(itemConstraint.get(I.getID())) {
+				//System.out.println(I.getID());
+				I.domain.set(j,false);
 			}
 			if(bagList.get(j).space < I.getSize() ) {
-				I.constraints.set(j,false);
+				I.domain.set(j,false);
 			}
 		}
-//		
-//		for(int i = 0; (i<totalItems && !itemConstraint.get(i));i++ ) {//iterate through list of constraints provided 
-//			//System.out.println(copyItems.get(i).constraints.length()+"  inside");
-//			System.out.println(j);
-//			copyItems.get(i);
-//			copyItems.get(i).constraints.set(j,false);//grab the item and change its domain 
-//		}
+
 	}
 
 

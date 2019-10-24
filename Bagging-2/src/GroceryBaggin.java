@@ -38,7 +38,7 @@ public static int first=0;
 //		System.out.println(totalItems);
 //		System.out.println(init.itemList.get(0).constraints.get(4));
 		//result = depthSearch();
-		result = localSearch();
+		//result = localSearch();
 
 		result = depthSearch();
 		if(result!=null) {
@@ -93,16 +93,17 @@ public static int first=0;
 ////		}
 	}
 	
-	
+	//#########################bags
 	public static void LCD(List<Item> copyItems,List<Bag> copyBags, Item I){
 		for(int j=0; j<bags;j++) {
-			if(I.domain.get(j)) {
+			if(I.domain.get(copyBags.get(j).ID)) {
+				
 			  copyBags.get(j).LCD = 0;
 			
 			
 		//	for(int i = 0;i<totalItems && !I.constraints.get(i) && copyItems.get(i).domain.get(j) ;i++) {//part of I's constraints and had J as a domain value
 			  for(Item o: copyItems) {
-				  if(!I.constraints.get(o.getID()) && o.domain.get(j)) {
+				  if(!I.constraints.get(o.getID()) && o.domain.get(copyBags.get(j).ID)) {
 				  	copyBags.get(j).LCD++;	
 				  }
 			  }
@@ -112,68 +113,80 @@ public static int first=0;
 		Collections.sort(copyBags);
 	
 	}
+
 	public static WorldState depthSearch() {
-		
-		while(!stack.isEmpty()) {	
+
+		while (!stack.isEmpty()) {
 			WorldState temp = stack.pop();
-			if(goal(temp)) {
+			if (goal(temp)) {
 				stack.add(temp);
 				return temp;
-				
+
+			}
+			if(first==0) {
+				for(Item b: temp.itemList) {
+					System.out.println(b.getID()+"  "+b.constraints);
+				}
+				first++;
 			}
 			Collections.sort(temp.itemList);
-			
-			for(Item I : temp.itemList) {
-			
-					
-				//sort bags for lcd when thinking about I
-					if(temp.itemList.size()>1) {
-					LCD(temp.itemList,temp.bagList,I);
-					}
-				
-					for(Bag b :temp.bagList) {
-						
+
+			for (Item I : temp.itemList) {
+
+				// sort bags for lcd when thinking about I
+				if (temp.itemList.size() > 1) {
+					LCD(temp.itemList, temp.bagList, I);
+				}
+
+				for (Bag b : temp.bagList) {
+					if (I.domain.get(b.ID)&& I.getSize()<b.space) {//bag needs to be in domain and have enough space
 						int index = temp.itemList.indexOf(I);
-						List<Item> copyItems = new ArrayList<Item>(CopyItems(temp.itemList));//make copies of current WS item list
-						List<Bag> copyBags = new ArrayList<Bag>(CopyBags(temp.bagList));//Make copy of current WS Bags					
-						copyBags.get(temp.bagList.indexOf(b)).bagItems.set(I.getID());	
-						copyBags.get(temp.bagList.indexOf(b)).space = copyBags.get(temp.bagList.indexOf(b)).space-I.getSize();
-					
+						List<Item> copyItems = new ArrayList<Item>(CopyItems(temp.itemList));// make copies of current																							
+						List<Bag> copyBags = new ArrayList<Bag>(CopyBags(temp.bagList));// Make copy of current WS Bags
+						
+						//update bagItems bitset and space
+						copyBags.get(temp.bagList.indexOf(b)).bagItems.set(I.getID());
+						copyBags.get(temp.bagList.indexOf(b)).space = copyBags.get(temp.bagList.indexOf(b)).space- I.getSize();
+						
+//						System.out.println(I+" : "+I.domain+" : "+b.ID);
 						copyItems.remove(index);
 
-						WorldState newState = new WorldState(copyBags,copyItems);
-						newState.updateDomains(I.constraints,temp.bagList.indexOf(b));
+						WorldState newState = new WorldState(copyBags, copyItems);
+						newState.updateDomains(I.constraints, b.ID);
+
+						stack.add(newState);
+						if (goal(newState)) {
+							return newState;
+						} else {
+							WorldState result = depthSearch();
+							if(goal(result)){
+								if(first<0) {
+								for(Bag b1: result.bagList) {
+									System.out.println(b1.ID+" , "+b1.space+" , "+b1);
+								}
+								}
+								return result;
+							}
+						}
 						
-						stack.add(newState);				
-							if(goal(newState)) {
-//								if(first<6) {
-//								for(Bag b:copyBags) {
-//								System.out.println(b);
-//								}}
-//								first++;
-								return newState;
-							}else {
-								depthSearch();
-							}	
-					}			
+					}
+
+				}
 			}
-					
+
 		}
-//		if(first<5) {
-//			System.out.println("after "+copyItems +"\n");
-//			first++;
-//			}
-		//find MRV using cardinality of bit set and item size	
-		//method of determining LCV
-		//the depth search
+
+		// find MRV using cardinality of bit set and item size
+		// method of determining LCV
+		// the depth search
 		return null;
-		
+
 	}
 		
 	public static WorldState localSearch() {
 		List<Bag> bagList = new ArrayList<Bag>();
 		for(int i=0;i<bags;i++) {
-			Bag newbag = new Bag(totalItems,bagWeight);
+			Bag newbag = new Bag(i,totalItems,bagWeight);
 			bagList.add(newbag);
 		}
 		
@@ -212,8 +225,11 @@ public static int first=0;
 
 			// Iterate through file and create items
 			sc = new Scanner(openFile);
+			
+			int j=0;
 			while (sc.hasNextLine()) {
-				createNewItem(sc.nextLine());
+				createNewItem(sc.nextLine(),j);
+				j++;
 			}
 
 			sc.close();
@@ -240,6 +256,92 @@ public static int first=0;
 	 * Parses Item line into item object 
 	 * @param item
 	 */
+	private static void createNewItem(String item,int j) {
+		// Split item line into its parameters
+		// Format: Name Weight constraint itemA ... itemZ
+		String itemArr[] = item.split(" ");
+		
+		// Save amount of bags and bag weight
+		if(index == 0) {
+			bags = Integer.parseInt(itemArr[0]);
+			BitSet blank = new BitSet(totalItems);	
+			blank.set(0, totalItems,false);
+			for(int i=0; i<totalItems;i++) {
+				Item I = new Item(i,0,(BitSet)blank.clone(),bags);
+				itemList.add(I);
+			}
+			
+			index++;
+			return;
+		}
+		else if(index == 1) {
+			bagWeight = Integer.parseInt(itemArr[0]);
+			index++;
+			return;
+		}
+		
+		// parse item index
+		int itemIndex = Integer.parseInt(itemArr[0].substring(4));
+		
+		// parse item weight and add to total
+		int itemWeight = Integer.parseInt(itemArr[1]);
+		totalItemWeight += itemWeight;
+		
+		// + constraint or - constraint or no constraint
+		char itemSymbol;
+		if(itemArr.length > 2) {
+			itemSymbol = itemArr[2].charAt(0);
+		}
+		else {
+			itemSymbol = ' '; //empty
+		}
+		
+		// Loop through all constraint items and create constraint bit
+		BitSet constraintBits = new BitSet(totalItems);
+		if(itemSymbol == '+') {
+			constraintBits.set(0, totalItems); // set all other items to cant bag
+			constraintBits.clear(itemIndex); // can bag with itself
+			
+		}
+		
+		//System.out.println(constraintBits);
+		for(int i = 3; i < itemArr.length; i++) {
+			int constraintItem = Integer.parseInt(itemArr[i].substring(4));
+			
+			if(itemSymbol == '+') {
+				constraintBits.clear(constraintItem); // 0 if possible to bag item
+				for(Item I : itemList) {
+					if(I.getID()!=itemIndex && I.getID()!=constraintItem) {
+						I.constraints.set(itemIndex);
+					}
+				}
+			}
+			else { // - constraint
+				constraintBits.set(constraintItem); // 1 if dont bag with item
+				itemList.get(constraintItem).constraints.set(itemIndex);
+			
+			}
+			
+		}
+//		System.out.println(constraintBits);
+		// Create new Item
+	
+		Item newItem = new Item(itemIndex, itemWeight, constraintBits,bags);
+		itemList.get(itemIndex).size = itemWeight;
+		itemList.get(itemIndex).constraints.or(constraintBits);
+		
+		//itemList.add(newItem);
+		// Add to itemList
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	private static void createNewItem(String item) {
 		// Split item line into its parameters
 		// Format: Name Weight constraint itemA ... itemZ
