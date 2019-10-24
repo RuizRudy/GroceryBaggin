@@ -25,7 +25,7 @@ public static int first=0;
 		
 		List<Bag> bagList = new ArrayList<Bag>();
 		for(int i=0;i<bags;i++) {
-			Bag newbag = new Bag(totalItems,bagWeight);
+			Bag newbag = new Bag(i,totalItems,bagWeight);
 			bagList.add(newbag);
 		}
 		WorldState result = null;
@@ -33,13 +33,16 @@ public static int first=0;
 		stack = new Stack<WorldState>();
 		
 		stack.add(init);
-		
-//		System.out.println(totalItems);
-//		System.out.println(init.itemList.get(0).constraints.get(4));
+
 		result = depthSearch();
 		if(result!=null) {
 			System.out.println("success");
 			System.out.print(result.toString());
+//			for(Bag b:result.bagList) {
+//				System.out.println("space " +b.space);
+//				System.out.println(b);
+//				}
+			
 		}
 		else
 			System.out.println("failure");
@@ -66,22 +69,22 @@ public static int first=0;
 	
 	
 	public static void updateDomains(List<Item> copyItems, BitSet itemConstraint, Bag bag,int j) {//||(i<totalItems && bag.space < copyItems.get(i).getSize()  )
-		//System.out.println(copyItems.size());
-		for(Item I: copyItems) {
-			if(!itemConstraint.get(I.getID())) {
-				I.constraints.set(j,false);
-			}
-			if(bag.space < I.getSize() ) {
-				I.constraints.set(j,false);
-			}
-		}
-//		
-//		for(int i = 0; (i<totalItems && !itemConstraint.get(i));i++ ) {//iterate through list of constraints provided 
-//			//System.out.println(copyItems.get(i).constraints.length()+"  inside");
-//			System.out.println(j);
-//			copyItems.get(i);
-//			copyItems.get(i).constraints.set(j,false);//grab the item and change its domain 
+//		//System.out.println(copyItems.size());
+//		for(Item I: copyItems) {
+//			if(!itemConstraint.get(I.getID())) {
+//				I.constraints.set(j,false);
+//			}
+//			if(bag.space < I.getSize() ) {
+//				I.constraints.set(j,false);
+//			}
 //		}
+////		
+////		for(int i = 0; (i<totalItems && !itemConstraint.get(i));i++ ) {//iterate through list of constraints provided 
+////			//System.out.println(copyItems.get(i).constraints.length()+"  inside");
+////			System.out.println(j);
+////			copyItems.get(i);
+////			copyItems.get(i).constraints.set(j,false);//grab the item and change its domain 
+////		}
 	}
 	
 	
@@ -122,32 +125,18 @@ public static int first=0;
 					LCD(temp.itemList,temp.bagList,I);
 					}
 				
-					for(int j=0; I.domain.get(j)&& j<bags;j++) {
-						if(first<5) {
-							System.out.println(I.getID());
-							System.out.println("temp"+temp.itemList);
-						}
+					for(Bag b :temp.bagList) {
+						
 						int index = temp.itemList.indexOf(I);
 						List<Item> copyItems = new ArrayList<Item>(CopyItems(temp.itemList));//make copies of current WS item list
 						List<Bag> copyBags = new ArrayList<Bag>(CopyBags(temp.bagList));//Make copy of current WS Bags					
-						copyBags.get(j).bagItems.set(I.getID());	
-						copyBags.get(j).space=copyBags.get(j).space-I.getSize();
-						if(first<5) {
-						System.out.println("before "+copyItems);
-						}
+						copyBags.get(temp.bagList.indexOf(b)).bagItems.set(I.getID());	
+						copyBags.get(temp.bagList.indexOf(b)).space = copyBags.get(temp.bagList.indexOf(b)).space-I.getSize();
+					
 						copyItems.remove(index);
-						if(first<5) {
-							System.out.println("after "+copyItems +"\n");
-							first++;
-							}
-						if(first<5) {
-							for(Bag b:copyBags) {
-							System.out.println(b);
-							}}
-						
-						
+
 						WorldState newState = new WorldState(copyBags,copyItems);
-						newState.updateDomains(I.constraints,j);
+						newState.updateDomains(I.constraints,temp.bagList.indexOf(b));
 						
 						stack.add(newState);				
 							if(goal(newState)) {
@@ -164,6 +153,10 @@ public static int first=0;
 			}
 					
 		}
+//		if(first<5) {
+//			System.out.println("after "+copyItems +"\n");
+//			first++;
+//			}
 		//find MRV using cardinality of bit set and item size	
 		//method of determining LCV
 		//the depth search
