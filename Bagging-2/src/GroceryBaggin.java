@@ -35,20 +35,13 @@ public static int first=0;
 		
 		stack.add(init);
 		
-//		System.out.println(totalItems);
-//		System.out.println(init.itemList.get(0).constraints.get(4));
-		//result = depthSearch();
+
 		//result = localSearch();
 
 		result = depthSearch();
 		if(result!=null) {
-			System.out.println("success");
+			System.out.println("success ");
 			System.out.print(result.toString());
-//			for(Bag b:result.bagList) {
-//				System.out.println("space " +b.space);
-//				System.out.println(b);
-//				}
-			
 		}
 		else
 			System.out.println("failure");
@@ -74,34 +67,12 @@ public static int first=0;
 	}
 	
 	
-	public static void updateDomains(List<Item> copyItems, BitSet itemConstraint, Bag bag,int j) {//||(i<totalItems && bag.space < copyItems.get(i).getSize()  )
-//		//System.out.println(copyItems.size());
-//		for(Item I: copyItems) {
-//			if(!itemConstraint.get(I.getID())) {
-//				I.constraints.set(j,false);
-//			}
-//			if(bag.space < I.getSize() ) {
-//				I.constraints.set(j,false);
-//			}
-//		}
-////		
-////		for(int i = 0; (i<totalItems && !itemConstraint.get(i));i++ ) {//iterate through list of constraints provided 
-////			//System.out.println(copyItems.get(i).constraints.length()+"  inside");
-////			System.out.println(j);
-////			copyItems.get(i);
-////			copyItems.get(i).constraints.set(j,false);//grab the item and change its domain 
-////		}
-	}
 	
 	//#########################bags
 	public static void LCD(List<Item> copyItems,List<Bag> copyBags, Item I){
 		for(int j=0; j<bags;j++) {
 			if(I.domain.get(copyBags.get(j).ID)) {
-				
-			  copyBags.get(j).LCD = 0;
-			
-			
-		//	for(int i = 0;i<totalItems && !I.constraints.get(i) && copyItems.get(i).domain.get(j) ;i++) {//part of I's constraints and had J as a domain value
+			  copyBags.get(j).LCD = 0;			
 			  for(Item o: copyItems) {
 				  if(!I.constraints.get(o.getID()) && o.domain.get(copyBags.get(j).ID)) {
 				  	copyBags.get(j).LCD++;	
@@ -113,7 +84,18 @@ public static int first=0;
 		Collections.sort(copyBags);
 	
 	}
-
+	public static void ARC(WorldState state) {
+		Queue<Item> queue = new LinkedList<Item>();
+		queue.addAll(state.itemList);
+		
+		Item temp = queue.poll();
+		
+		for(Item I : itemList) {
+			if(temp.constraints.get(I.getID())) {
+				
+			}
+		}		
+	}
 	public static WorldState depthSearch() {
 
 		while (!stack.isEmpty()) {
@@ -123,14 +105,7 @@ public static int first=0;
 				return temp;
 
 			}
-			if(first==0) {
-				for(Item b: temp.itemList) {
-					System.out.println(b.getID()+"  "+b.constraints);
-				}
-				first++;
-			}
 			Collections.sort(temp.itemList);
-
 			for (Item I : temp.itemList) {
 
 				// sort bags for lcd when thinking about I
@@ -139,7 +114,7 @@ public static int first=0;
 				}
 
 				for (Bag b : temp.bagList) {
-					if (I.domain.get(b.ID)&& I.getSize()<b.space) {//bag needs to be in domain and have enough space
+					if (I.domain.get(b.ID)&& I.getSize()<=b.space) {//bag needs to be in domain and have enough space
 						int index = temp.itemList.indexOf(I);
 						List<Item> copyItems = new ArrayList<Item>(CopyItems(temp.itemList));// make copies of current																							
 						List<Bag> copyBags = new ArrayList<Bag>(CopyBags(temp.bagList));// Make copy of current WS Bags
@@ -148,9 +123,9 @@ public static int first=0;
 						copyBags.get(temp.bagList.indexOf(b)).bagItems.set(I.getID());
 						copyBags.get(temp.bagList.indexOf(b)).space = copyBags.get(temp.bagList.indexOf(b)).space- I.getSize();
 						
-//						System.out.println(I+" : "+I.domain+" : "+b.ID);
+						//System.out.println(I+" : "+I.domain+" : "+b.ID+"  space "+b.space);
 						copyItems.remove(index);
-
+						
 						WorldState newState = new WorldState(copyBags, copyItems);
 						newState.updateDomains(I.constraints, b.ID);
 
@@ -159,13 +134,12 @@ public static int first=0;
 							return newState;
 						} else {
 							WorldState result = depthSearch();
+							if(result!=null) {
+								
+							
 							if(goal(result)){
-								if(first<0) {
-								for(Bag b1: result.bagList) {
-									System.out.println(b1.ID+" , "+b1.space+" , "+b1);
-								}
-								}
 								return result;
+							}
 							}
 						}
 						
@@ -175,10 +149,6 @@ public static int first=0;
 			}
 
 		}
-
-		// find MRV using cardinality of bit set and item size
-		// method of determining LCV
-		// the depth search
 		return null;
 
 	}
