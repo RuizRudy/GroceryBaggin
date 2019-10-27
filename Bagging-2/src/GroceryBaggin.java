@@ -20,9 +20,18 @@ public class GroceryBaggin {
 	private static int searchType;
 	private static int index = 0;
 	private static Stack<WorldState> stack;
-public static int first=0;
+	public static int first=0;
+	static int iterations = 0;
+	
 	public static void main(String[] args) {
 		parseFile(args[0]);//uses parseFile() and CreateNewItem() to create item list
+
+		for(Item i : itemList)
+			System.out.println(i.getConstraints());
+		if(bags * bagWeight < totalItemWeight) {
+			System.out.println("failure");
+			return;
+		}
 		
 		List<Bag> bagList = new ArrayList<Bag>();
 		for(int i=0;i<bags;i++) {
@@ -40,9 +49,10 @@ public static int first=0;
 		//result = depthSearch();
 		//result = localSearch();
 
-		result = depthSearch();
+		//result = depthSearch();
+		result = localSearch();
 		if(result!=null) {
-			System.out.println("success");
+			System.out.println("success "+ iterations);
 			System.out.print(result.toString());
 //			for(Bag b:result.bagList) {
 //				System.out.println("space " +b.space);
@@ -184,6 +194,7 @@ public static int first=0;
 	}
 		
 	public static WorldState localSearch() {
+		
 		List<Bag> bagList = new ArrayList<Bag>();
 		for(int i=0;i<bags;i++) {
 			Bag newbag = new Bag(i,totalItems,bagWeight);
@@ -192,30 +203,76 @@ public static int first=0;
 		
 		Random rand = new Random();
 		for(Item i : itemList) {
-			bagList.get(rand.nextInt(bags)).addItem(i.getID(),i.getConstraints());
+			bagList.get(rand.nextInt(bags)).addItem(i.getID(),i.getConstraints(), i.getSize());
 		}
-		
-		int totalConflicts = 0;
-		for(Bag b : bagList) {
-			System.out.println(b.getBagItems());
-			b.valueOfConflicts();
-		}
-		
+
 		WorldState current = new WorldState(bagList, itemList);
-		
+		WorldState neighbor;
 		while(current.isGoalState() != true) {
+			boolean movedItem = false;
 			// neighbor move
-			WorldState neighbor = new WorldState(bagList, itemList);
+			neighbor = new WorldState(bagList, itemList);
+			List<Bag> neighborBags = neighbor.getBags();
 			
-			
-			//if neighbor.value <= current.value
-			if(neighbor.valueOfConflicts() < current.valueOfConflicts()) {
+			// Check every bag
+			for(int i = 0; i < bags; i++) {
+				Bag temp = neighborBags.get(i);
+				// If there is conflicts in bag, then grab item and move to other bag
+				if(temp.valueOfConflicts() != 0) {
+					BitSet items = temp.getBagItems();
+					
+					for (int j = items.nextSetBit(0); j >= 0; j = items.nextSetBit(j+1)) {
+					     // Try moving item to other bag that has no constraints
+						for(Bag b : neighborBags) {
+							System.out.println("Temp " + temp.getID() + " " + temp.getConstraintBits());
+							System.out.println("Temp items " + temp.getBagItems());
+							System.out.println("Bag " + b.getID() + " " + b.getConstraintBits());
+							System.out.println("Bag items " + b.getBagItems());
+							System.out.println("Item " + itemList.get(j).getID() + " size " + itemList.get(j).getSize() + " " + itemList.get(j).getConstraints());
+							if(!b.willConflict(itemList.get(j).getID(), itemList.get(j).getConstraints(), itemList.get(j).getSize())){
+								temp.removeItem(itemList.get(j).getID(), itemList.get(j).getConstraints(), itemList.get(j).getSize());
+								
+								movedItem = true;
+								break;
+							}
+							
+						}
+						if(movedItem)
+							break;
+					}
+					
+					break;
+				}
 				
+			}
+			if(movedItem == true) {
+				current = new WorldState(neighborBags, itemList);
+				movedItem = false;
+			}
+			else {
+				rand = new Random();
+				for(Bag b: bagList)
+					b.clearBag(bagWeight);
+				for(Item i : itemList) {
+					bagList.get(rand.nextInt(bags)).addItem(i.getID(),i.getConstraints(), i.getSize());
+				}
 			}
 		}
 		
+		/*while(current.isGoalState() != true) {
+			rand = new Random();
+			for(Bag b: bagList)
+				b.clearBag(bagWeight);
+			for(Item i : itemList) {
+				bagList.get(rand.nextInt(bags)).addItem(i.getID(),i.getConstraints(), i.getSize());
+			}
+			iterations++;
+			if(iterations == Integer.MAX_VALUE)
+				return null;
+		}*/
 		
-		return null;
+		
+		return current;
 	}
 	
 	
@@ -278,7 +335,7 @@ public static int first=0;
 		// Split item line into its parameters
 		// Format: Name Weight constraint itemA ... itemZ
 		String itemArr[] = item.split(" ");
-		
+
 		// Save amount of bags and bag weight
 		if(index == 0) {
 			bags = Integer.parseInt(itemArr[0]);
@@ -300,7 +357,7 @@ public static int first=0;
 		
 		// parse item index
 		int itemIndex = Integer.parseInt(itemArr[0].substring(4));
-		
+
 		// parse item weight and add to total
 		int itemWeight = Integer.parseInt(itemArr[1]);
 		totalItemWeight += itemWeight;
@@ -337,13 +394,11 @@ public static int first=0;
 			else { // - constraint
 				constraintBits.set(constraintItem); // 1 if dont bag with item
 				itemList.get(constraintItem).constraints.set(itemIndex);
-			
+				constraintBits.clear(itemIndex);
 			}
 			
 		}
-//		System.out.println(constraintBits);
 		// Create new Item
-	
 		Item newItem = new Item(itemIndex, itemWeight, constraintBits,bags);
 		itemList.get(itemIndex).size = itemWeight;
 		itemList.get(itemIndex).constraints.or(constraintBits);
@@ -415,7 +470,7 @@ public static int first=0;
 			}
 			
 		}
-//		System.out.println(constraintBits);
+		System.out.println("TEST");
 		// Create new Item
 	
 		Item newItem = new Item(itemIndex, itemWeight, constraintBits,bags);
