@@ -20,39 +20,57 @@ public class GroceryBaggin {
 	private static int searchType;
 	private static int index = 0;
 	private static Stack<WorldState> stack;
-public static int first=0;
+    public static int first=0;
+    public static List<Bag> bagList = new ArrayList<Bag>(); 
+    
+    
 	public static void main(String[] args) {
+	
 		parseFile(args[0]);//uses parseFile() and CreateNewItem() to create item list
-		
-		List<Bag> bagList = new ArrayList<Bag>();
+		// Check if all items weigh more than bags can hold
+
+		bagList = new ArrayList<Bag>();
 		for(int i=0;i<bags;i++) {
 			Bag newbag = new Bag(i,totalItems,bagWeight);
 			bagList.add(newbag);
 		}
+		
+		
 		WorldState result = null;
 		WorldState init = new WorldState(bagList,itemList);
+		for(Item I: itemList) {
+			I.linkDomain.addAll(init.bagList);
+
+		}
+
+		
+		
+		
+		
 		stack = new Stack<WorldState>();
 		
 		stack.add(init);
+
+		if((bags * bagWeight) < totalItemWeight) {
+			System.out.println("failure");
+			return;
+		} 
+		if(itemList.isEmpty()||(itemList.get(0).getSize()>bagWeight)) {
+			System.out.println("failure");
+			return;
+		}
+			
+		
 		
 
 		//result = localSearch();
 		
-//for(Item I: init.itemList) {
-//			System.out.println("ID: "+I.getID());
-//			System.out.println("Size: "+I.size);
-//			System.out.println("constraints: "+I.constraints);
-//			
-//		}
+
 		result = depthSearch();
 		
 		
 		if(result!=null) {
 			System.out.println("success ");
-//			for(Bag b : result.bagList) {
-//				System.out.println("space "+b.space);
-//				System.out.println(b.bagItems);
-//			}
 			System.out.print(result.toString());
 		}
 		else
@@ -81,19 +99,15 @@ public static int first=0;
 	
 	
 	//#########################bags
-	public static void LCD(List<Item> copyItems,List<Bag> copyBags, Item I){
-		for(int j=0; j<bags;j++) {
-			if(I.domain.get(copyBags.get(j).ID)) {
-			  copyBags.get(j).LCD = 0;			
-			  for(Item o: copyItems) {
-				  if(!I.constraints.get(o.getID()) && o.domain.get(copyBags.get(j).ID)) {
-				  	copyBags.get(j).LCD++;	
-				  }
-			  }
+	public static void LCV(Item item){		
+
+		for(Bag b: item.linkDomain) {
+			b.LCD=0;
+			for(Item I: item.linkCST) {
+				b.LCD++;
 			}
-		}
-		
-		Collections.sort(copyBags);
+		}		
+		Collections.sort(item.linkDomain);
 	
 	}
 	public static void ARC(WorldState state) {
@@ -108,6 +122,17 @@ public static int first=0;
 			}
 		}		
 	}
+	public static boolean Forward(Bag bag,List<Item> items) {
+		for(Item I: items) {			
+				if(I.linkDomain.size()>1) {
+					
+				}else if(I.linkDomain.size()>0 && I.linkDomain.contains(bag)) {
+					return true;
+					
+				}
+		}
+		return false;
+	}
 	public static WorldState depthSearch() {
 
 		while (!stack.isEmpty()) {
@@ -118,48 +143,53 @@ public static int first=0;
 
 			}
 			Collections.sort(temp.itemList);
+
+			
 			for (Item I : temp.itemList) {
-
-				// sort bags for lcd when thinking about I
-				if (temp.itemList.size() > 1) {
-					LCD(temp.itemList, temp.bagList, I);
+				// sort bags for lcv when thinking about I
+				LCV(I);				
+				if(I.domain.size()==0) {
+					System.out.println("domain empty: ");
+							return null;
 				}
-
-				for (Bag b : temp.bagList) {
+				for(Bag b : I.linkDomain) {
 					
-					if (I.domain.get(b.ID)&& I.getSize()<=b.space) {//bag needs to be in domain and have enough space
-						int index = temp.itemList.indexOf(I);
-						List<Item> copyItems = new ArrayList<Item>(CopyItems(temp.itemList));// make copies of current																							
-						List<Bag> copyBags = new ArrayList<Bag>(CopyBags(temp.bagList));// Make copy of current WS Bags
+					if(Forward(b,I.linkCST)) {
+						return null;
+					}
+					
+					if(I.size <= temp.bagList.get(b.ID).space) {
 						
-						//update bagItems bitset and space
-						copyBags.get(temp.bagList.indexOf(b)).bagItems.set(I.getID());
-//						System.out.println("before space: "+copyBags.get(temp.bagList.indexOf(b)).space);
-//						System.out.println("before item size: "+I.getSize());
-						copyBags.get(temp.bagList.indexOf(b)).space = copyBags.get(temp.bagList.indexOf(b)).space- I.getSize();
-//						System.out.println("after space: "+copyBags.get(temp.bagList.indexOf(b)).space);
-						//System.out.println(I+" : "+I.domain+" : "+b.ID+"  space "+b.space);
-						copyItems.remove(index);
-						
+					List<Bag> copyBags = new ArrayList<Bag>(CopyBags(temp.bagList));// Make copy of current WS Bags
+					List<Item> copyItems = new ArrayList<Item>(CopyItems(temp.itemList));// make copies of current																							
+					
+					//update bagItems bitset and space
+					copyBags.get(b.ID).bagItems.set(I.getID());					
+					copyBags.get(b.ID).space-= I.size;
+					
+					
+					copyItems.remove(temp.itemList.lastIndexOf(I));					
+					for(Item I1: copyItems) {
+						if(I.constraints.get(I1.getID()) || I1.size > copyBags.get(b.ID).space) {
+							copyItems.get(copyItems.lastIndexOf(I1)).linkDomain.remove(b);
+							I1.constraints.set(b.ID);
+						}
+					}
 						WorldState newState = new WorldState(copyBags, copyItems);
-						newState.updateDomains(I.constraints, b.ID);
 
-						stack.add(newState);
-						if (goal(newState)) {
-							return newState;
-						} else {
-							WorldState result = depthSearch();
-							if(result!=null) {
-								
-							
+					stack.add(newState);
+					if (goal(newState)) {
+						return newState;
+					} else {
+						WorldState result = depthSearch();
+						if(result!=null) {					
 							if(goal(result)){
 								return result;
 							}
-							}
 						}
-						
 					}
-
+				}
+					
 				}
 			}
 
@@ -268,6 +298,7 @@ public static int first=0;
 		// parse item index
 		int itemIndex = Integer.parseInt(itemArr[0].substring(4));
 		
+		
 		// parse item weight and add to total
 		int itemWeight = Integer.parseInt(itemArr[1]);
 		totalItemWeight += itemWeight;
@@ -285,6 +316,10 @@ public static int first=0;
 		BitSet constraintBits = new BitSet(totalItems);
 		if(itemSymbol == '+') {
 			constraintBits.set(0, totalItems); // set all other items to cant bag
+			
+			itemList.get(itemIndex).linkCST.addAll(itemList);
+			itemList.get(itemIndex).linkCST.remove(itemIndex);
+			
 			constraintBits.clear(itemIndex); // can bag with itself
 			
 		}
@@ -298,11 +333,13 @@ public static int first=0;
 				for(Item I : itemList) {
 					if(I.getID()!=itemIndex && I.getID()!=constraintItem) {
 						I.constraints.set(itemIndex);
+						I.linkCST.add(itemList.get(itemIndex));
 					}
 				}
 			}
 			else { // - constraint
 				constraintBits.set(constraintItem); // 1 if dont bag with item
+				itemList.get(constraintItem).linkCST.add(itemList.get(itemIndex));
 				itemList.get(constraintItem).constraints.set(itemIndex);
 			
 			}

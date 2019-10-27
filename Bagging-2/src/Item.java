@@ -1,5 +1,7 @@
 import java.util.BitSet;
 import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Item implements Comparable {
 	
@@ -7,6 +9,8 @@ public class Item implements Comparable {
 	public int size;
 	public BitSet constraints;
 	public BitSet domain;
+	public LinkedList<Bag> linkDomain = new LinkedList<Bag>();
+	public  LinkedList<Item> linkCST = new LinkedList<Item>(); 
 	
 	/**
 	 * Constructor for each item
@@ -19,8 +23,10 @@ public class Item implements Comparable {
 		this.size = size;
 		this.constraints = constraints;
 		domain = new BitSet(domainSize);
+		
 		domain.set(0,domainSize,true);
 	}
+
 	/**
 	 * Returns item index value to caller
 	 * @return
@@ -98,7 +104,9 @@ public class Item implements Comparable {
 		item.constraints= (BitSet) this.constraints.clone();
 		item.domain=new BitSet();
 		item.domain= (BitSet) this.domain.clone();
-		
+		item.linkCST = (LinkedList<Item>) this.linkCST.clone();
+		item.linkDomain = (LinkedList<Bag>) this.linkDomain.clone();
+		//System.out.println("item.linkDomain: "+item.linkDomain+" this.item: "+this.linkDomain);
 		return item;
 		
 		

@@ -22,17 +22,28 @@ public class WorldState {
 		Item mrv = Collections.max(itemList);		
 		return mrv.getID();
 	}
-	public void updateDomains(BitSet itemConstraint, int j) {//||(i<totalItems && bag.space < copyItems.get(i).getSize()  )
-		//System.out.println(itemConstraint);
-		for(Item I: this.itemList) {
-			if(itemConstraint.get(I.getID())) {
-				//System.out.println(I.getID());
-				I.domain.set(j,false);
-			}
-			if(bagList.get(j).space < I.getSize() ) {
-				I.domain.set(j,false);
-			}
+	public void updateDomains(Item item, Bag bag) {//||(i<totalItems && bag.space < copyItems.get(i).getSize()  )
+		
+		for(Item I: item.linkCST) {
+			//System.out.println("before "+I.linkDomain);
+			I.linkDomain.remove(bag);
+			//System.out.println("before "+I.linkDomain);
 		}
+		
+		
+		
+		//System.out.println(itemConstraint);
+//		for(Item I: this.itemList) {
+//			if(itemConstraint.get(I.getID())) {
+//				//System.out.println(I.getID());
+//				I.domain.set(j,false);
+//				
+//			}
+//			if(bagList.get(j).space < I.getSize() ) {
+//				
+//				I.domain.set(j,false);
+//			}
+//		}
 
 	}
 
