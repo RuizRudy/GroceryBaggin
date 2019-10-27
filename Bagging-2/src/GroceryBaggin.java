@@ -37,10 +37,22 @@ public static int first=0;
 		
 
 		//result = localSearch();
-
+		
+//for(Item I: init.itemList) {
+//			System.out.println("ID: "+I.getID());
+//			System.out.println("Size: "+I.size);
+//			System.out.println("constraints: "+I.constraints);
+//			
+//		}
 		result = depthSearch();
+		
+		
 		if(result!=null) {
 			System.out.println("success ");
+//			for(Bag b : result.bagList) {
+//				System.out.println("space "+b.space);
+//				System.out.println(b.bagItems);
+//			}
 			System.out.print(result.toString());
 		}
 		else
@@ -114,6 +126,7 @@ public static int first=0;
 				}
 
 				for (Bag b : temp.bagList) {
+					
 					if (I.domain.get(b.ID)&& I.getSize()<=b.space) {//bag needs to be in domain and have enough space
 						int index = temp.itemList.indexOf(I);
 						List<Item> copyItems = new ArrayList<Item>(CopyItems(temp.itemList));// make copies of current																							
@@ -121,8 +134,10 @@ public static int first=0;
 						
 						//update bagItems bitset and space
 						copyBags.get(temp.bagList.indexOf(b)).bagItems.set(I.getID());
+//						System.out.println("before space: "+copyBags.get(temp.bagList.indexOf(b)).space);
+//						System.out.println("before item size: "+I.getSize());
 						copyBags.get(temp.bagList.indexOf(b)).space = copyBags.get(temp.bagList.indexOf(b)).space- I.getSize();
-						
+//						System.out.println("after space: "+copyBags.get(temp.bagList.indexOf(b)).space);
 						//System.out.println(I+" : "+I.domain+" : "+b.ID+"  space "+b.space);
 						copyItems.remove(index);
 						
