@@ -61,22 +61,11 @@ public class GroceryBaggin {
 		
 
 		//result = localSearch();
-		
-//for(Item I: init.itemList) {
-//			System.out.println("ID: "+I.getID());
-//			System.out.println("Size: "+I.size);
-//			System.out.println("constraints: "+I.constraints);
-//			
-//		}
-		result = depthSearch();
-		
-		
+
+		//result = depthSearch();
+		result = localSearch();
 		if(result!=null) {
 			System.out.println("success ");
-//			for(Bag b : result.bagList) {
-//				System.out.println("space "+b.space);
-//				System.out.println(b.bagItems);
-//			}
 			System.out.print(result.toString());
 		}
 		else
@@ -150,7 +139,6 @@ public class GroceryBaggin {
 				}
 
 				for (Bag b : temp.bagList) {
-					
 					if (I.domain.get(b.ID)&& I.getSize()<=b.space) {//bag needs to be in domain and have enough space
 						int index = temp.itemList.indexOf(I);
 						List<Item> copyItems = new ArrayList<Item>(CopyItems(temp.itemList));// make copies of current																							
@@ -158,10 +146,8 @@ public class GroceryBaggin {
 						
 						//update bagItems bitset and space
 						copyBags.get(temp.bagList.indexOf(b)).bagItems.set(I.getID());
-//						System.out.println("before space: "+copyBags.get(temp.bagList.indexOf(b)).space);
-//						System.out.println("before item size: "+I.getSize());
 						copyBags.get(temp.bagList.indexOf(b)).space = copyBags.get(temp.bagList.indexOf(b)).space- I.getSize();
-//						System.out.println("after space: "+copyBags.get(temp.bagList.indexOf(b)).space);
+						
 						//System.out.println(I+" : "+I.domain+" : "+b.ID+"  space "+b.space);
 						copyItems.remove(index);
 						
@@ -219,38 +205,31 @@ public class GroceryBaggin {
 				
 				if(currentBags.get(i).valueOfConflicts() != 0) {
 					BitSet items = currentBags.get(i).getBagItems();
-					for(Bag b : currentBags)
-						System.out.println("Bag " + b.getID() + " " + b.getBagItems() + " " + b.valueOfConflicts());
+					
 					// j = item that is moving to other bag if fits
 					for (int j = items.nextSetBit(0); j >= 0; j = items.nextSetBit(j+1)) {
 					     // Try moving item to other bag that has no constraints
 						//if(itemList.get(j).getConstraints().get(j) != true) {}
 						int bagNum = 0;
 						for(Bag b : currentBags) {
-							//System.out.println("Temp " + temp.getID() + " " + temp.getConstraintBits());
-							//System.out.println("Temp items " + temp.getBagItems());
-							//System.out.println("Bag " + b.getID() + " " + b.getConstraintBits());
-							//System.out.println("Bag items " + b.getBagItems());
-							//System.out.println("Item " + itemList.get(j).getID() + " size " + itemList.get(j).getSize() + " " + itemList.get(j).getConstraints());
-							//System.out.println("before: " + b.getConstraintBits());
 
 							if(!b.willConflict(itemList.get(j).getID(), itemList.get(j).getConstraints(), itemList.get(j).getSize()) && bagNum != i){
 								//temp.removeItem(itemList.get(j).getID(), itemList.get(j).getConstraints(), itemList.get(j).getSize());
-								System.out.println("\nMoving " + itemList.get(j).getID() + " from Bag " + currentBags.get(i).getID() + " to Bag " + b.getID());
-								System.out.println("CurrentBag befor " + currentBags.get(i).getID() +  currentBags.get(i).getConstraintBits());
+								//System.out.println("\nMoving " + itemList.get(j).getID() + " from Bag " + currentBags.get(i).getID() + " to Bag " + b.getID());
+								//System.out.println("CurrentBag befor " + currentBags.get(i).getID() +  currentBags.get(i).getConstraintBits());
 								currentBags.get(i).removeItem(itemList.get(j).getID(), itemList.get(j).getConstraints(), itemList.get(j).getSize());
 								movedItem = true;
 
 								BitSet newConstraints = new BitSet(totalItems);
 
 								BitSet tmp = currentBags.get(i).getBagItems();
-								System.out.println("items after removal from bag " + currentBags.get(i).getID() + " " + currentBags.get(i).getBagItems());
+								//System.out.println("items after removal from bag " + currentBags.get(i).getID() + " " + currentBags.get(i).getBagItems());
 								for (int k = tmp.nextSetBit(0); k >= 0; k = tmp.nextSetBit(k+1)) {
 								     newConstraints.or(itemList.get(k).getConstraints());
 								     
 								}
 								currentBags.get(i).setNewConstraints(newConstraints);
-								System.out.println("CurrentBag after " + currentBags.get(i).getConstraintBits());
+								//System.out.println("CurrentBag after " + currentBags.get(i).getConstraintBits());
 								b.addItem(j, itemList.get(j).getConstraints(), itemList.get(j).getSize());
 								
 								iterations++;
@@ -268,15 +247,16 @@ public class GroceryBaggin {
 					break;
 			}
 			
-			if(movedItem == true && iterations != 1000) {
+			if(movedItem == true && iterations != 50) {
 				current = new WorldState(currentBags, itemList);
-				iterations = 0;
+				
 				movedItem = false;
 			}
 			else {
-				if(totalIterations == 1000000)
+				if(totalIterations > 1000000)
 					return null;
-				System.out.println("RESTARTING");
+
+				iterations = 0;
 				rand = new Random();
 				for(Bag b: bagList)
 					b.clearBag(bagWeight);
@@ -439,7 +419,7 @@ public class GroceryBaggin {
 		itemList.get(itemIndexG).size = itemWeight;
 		itemList.get(itemIndexG).constraints.or(constraintBits);
 		itemIndexG++;
-		System.out.println(itemIndex + " " + constraintBits);
+		
 		//itemList.add(newItem);
 		// Add to itemList
 	}
@@ -450,7 +430,7 @@ public class GroceryBaggin {
 	
 	
 	
-	
+	/*
 	
 	private static void createNewItem2(String item, int index) {
 		// Split item line into its parameters
@@ -514,5 +494,5 @@ public class GroceryBaggin {
 		itemList.add(newItem);
 		// Add to itemList
 	}
-	
+	*/
 }
