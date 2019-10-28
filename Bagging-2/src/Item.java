@@ -7,6 +7,7 @@ public class Item implements Comparable {
 	public int size;
 	public BitSet constraints;
 	public BitSet domain;
+	public int index;
 	
 	/**
 	 * Constructor for each item
@@ -14,8 +15,9 @@ public class Item implements Comparable {
 	 * @param size
 	 * @param constraints
 	 */
-	public Item(int itemNum, int size, BitSet constraints,int domainSize) {		
+	public Item(int itemNum, int index, int size, BitSet constraints,int domainSize) {		
 		this.ID = itemNum;
+		this.index = index;
 		this.size = size;
 		this.constraints = constraints;
 		domain = new BitSet(domainSize);
@@ -51,6 +53,10 @@ public class Item implements Comparable {
 		return domain.cardinality();
 	}
 	
+	public void setConstraint(int index) {
+		constraints.set(index);
+	}
+	
 	/**
 	 * Comparator for the value of MVC in remaining item list
 	 */
@@ -84,7 +90,7 @@ public class Item implements Comparable {
 				return 1;
 			}
 			return 1;
-			
+		
 			
 		}
 		
@@ -92,7 +98,7 @@ public class Item implements Comparable {
 	}
 	public Item clone() {
 		
-		Item item = new Item(ID,size,constraints,domain.length());
+		Item item = new Item(ID, index, size,constraints,domain.length());
 		item.ID= this.ID;
 		item.constraints=new BitSet();
 		item.constraints= (BitSet) this.constraints.clone();

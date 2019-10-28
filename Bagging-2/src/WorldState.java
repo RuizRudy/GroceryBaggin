@@ -35,6 +35,12 @@ public class WorldState {
 		}
 
 	}
+	public List<Bag> getBags(){
+		return bagList;
+	}
+	public List<Item> getItems(){
+		return itemList;
+	}
 
 
 	public String toString() {
@@ -52,6 +58,14 @@ public class WorldState {
 		return toS;
 		
 	}
-	
+	public boolean isGoalState() {
+		for(Bag b : bagList) {
+			if(b.valueOfConflicts() != 0) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
 
 }
