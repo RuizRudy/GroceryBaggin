@@ -40,9 +40,13 @@ public class Bag implements Comparable{
 	public BitSet getConstraintBits() {
 		return constraintBits;
 	}
+	public void setNewConstraints(BitSet bits) {
+		constraintBits = bits;
+	}
 	public int getID() {
 		return ID;
 	}
+	
 	/**
 	 * Add item to the bag
 	 * @return
@@ -90,10 +94,13 @@ public class Bag implements Comparable{
 	public int valueOfConflicts() {
 		int totalConflicts = 0;
 		for (int i = bagItems.nextSetBit(0); i >= 0; i = bagItems.nextSetBit(i+1)) {
-		     if(constraintBits.get(i) == true) { // true being there exists conflicts in bag
+			if(bagItems.cardinality() == 1 && constraintBits.get(i) == bagItems.get(i)) {
+				
+			}
+			if(constraintBits.get(i) == true) { // true being there exists conflicts in bag
 		    	 //System.out.println("Item" + i + " conflicting in bag");
 		    	 totalConflicts++;
-		     }
+		    }
 		}
 		if(space < 0)
 			totalConflicts++;
@@ -101,23 +108,25 @@ public class Bag implements Comparable{
 	}
 	
 	public boolean willConflict(int itemID, BitSet itemConstraints, int size) {
-		BitSet original = constraintBits;
+		BitSet original = (BitSet)constraintBits.clone();
 		original.or(itemConstraints);
+		
 		if(original.get(itemID) == true || space - size < 0) { // true being there exists conflict in the bag
 			return true;
 		}
 		else {
-			constraintBits = original;
-			bagItems.set(itemID);
-			space -= size;
+			//constraintBits = original;
+			//bagItems.set(itemID);
+			//space -= size;
 			return false;
 		}
 	}
 	
 	public void removeItem(int itemID, BitSet itemConstraints, int size) {
 		bagItems.clear(itemID);
-		constraintBits.or(itemConstraints);
-		space -= size;
+		//constraintBits.or(itemConstraints);
+		
+		space += size;
 		
 	}
 	
